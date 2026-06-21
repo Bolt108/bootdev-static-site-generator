@@ -58,8 +58,13 @@ def generate_page(from_path, template_path, dest_path, basepath):
 
     template_file = template_file.replace("{{ Title }}", title)
     template_file = template_file.replace("{{ Content }}", html_string)
+    # Handle double quotes
     template_file = template_file.replace('href="/', 'href="' + basepath)
     template_file = template_file.replace('src="/', 'src="' + basepath)
+
+    # Handle single quotes just in case
+    template_file = template_file.replace("href='/", "href='" + basepath)
+    template_file = template_file.replace("src='/", "src='" + basepath)
 
     file_path = Path(dest_path)
 

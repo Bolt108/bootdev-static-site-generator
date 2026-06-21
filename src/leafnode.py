@@ -16,7 +16,7 @@ class LeafNode(HTMLNode):
             if self.props != None:
                 props_string = ""
                 for key, value in self.props.items():
-                    props_string += f" {key}={value}"
+                    props_string += f" {key}=\"{value}\""
                 return f"<{self.tag}{props_string}>{self.value}</{self.tag}>"
             else:
                 return f"<{self.tag}>{self.value}</{self.tag}>"
