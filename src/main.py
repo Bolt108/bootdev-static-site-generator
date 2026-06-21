@@ -4,6 +4,7 @@ import shutil
 from markdown_to_html import markdown_to_html_node
 from htmlnode import HTMLNode
 from pathlib import Path
+import sys
 
 def copy_files_recursive(source_dir_path, dest_dir_path):
     # 1. Make sure the destination exists (create it fresh)
@@ -22,12 +23,12 @@ def copy_files_recursive(source_dir_path, dest_dir_path):
         else:
             copy_files_recursive(from_path, dest_path)
 
-def copy_files(source_dir_path, dest_dir_path):
+def copy_files(source_dir_path, dest_dir_path, basepath):
     if os.path.exists(dest_dir_path):
         shutil.rmtree(dest_dir_path)
     os.mkdir(dest_dir_path)
     copy_files_recursive(source_dir_path, dest_dir_path)
-    generate_pages_recursive("content", "template.html", "public")
+    generate_pages_recursive("content", "template.html", "docs", basepath)
 
 
 
@@ -43,7 +44,7 @@ def extract_title(markdown):
             return line
     raise ValueError("No H1 Header!")
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print("Generating page from from_path to dest_path using template_path")
     markdown_file = ""
     template_file = ""
@@ -57,6 +58,8 @@ def generate_page(from_path, template_path, dest_path):
 
     template_file = template_file.replace("{{ Title }}", title)
     template_file = template_file.replace("{{ Content }}", html_string)
+    template_file = template_file.replace("href=\"/", f"href=\"{basepath}\"")
+    template_file = template_file.replace("src=\"/", f"src=\"{basepath}\"")
 
     file_path = Path(dest_path)
 
@@ -66,16 +69,18 @@ def generate_page(from_path, template_path, dest_path):
     # 4. Write the HTML content using UTF-8 encoding
     file_path.write_text(template_file, encoding="utf-8")
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     dir = os.listdir(dir_path_content)
     for d in dir:
         full_path = os.path.join(dir_path_content, d)
         if os.path.isfile(full_path):
-            generate_page(full_path, template_path, os.path.join(dest_dir_path, Path(d).with_suffix(".html")))
+            generate_page(full_path, template_path, os.path.join(dest_dir_path, Path(d).with_suffix(".html")), basepath)
         else:
-            generate_pages_recursive(full_path, template_path, os.path.join(dest_dir_path, d))
+            generate_pages_recursive(full_path, template_path, os.path.join(dest_dir_path, d), basepath)
 
 def main():
-    copy_files(dir_path_static, dir_path_public)
+    basepath = sys.argv[1] if len(sys.argv) > 1 else "/"
+
+    copy_files(dir_path_static, dir_path_public, basepath)
 
 main()
