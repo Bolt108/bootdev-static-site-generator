@@ -33,7 +33,7 @@ def copy_files(source_dir_path, dest_dir_path, basepath):
 
 
 dir_path_static = "./static"
-dir_path_public = "./public"
+dir_path_public = "./docs"
 
 def extract_title(markdown):
     lines = markdown.split("\n")
